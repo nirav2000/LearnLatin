@@ -1,0 +1,26 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const elements=new Map();const node=()=>({innerHTML:'',textContent:'',value:'',dataset:{},classList:{toggle(){},add(){}},focus(){}});
+const document={querySelector:s=>{if(!elements.has(s))elements.set(s,node());return elements.get(s)},querySelectorAll:()=>[],addEventListener(){}};
+const memory=new Map();const ctx=vm.createContext({window:{},document,localStorage:{getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)},navigator:{onLine:false},crypto:require('node:crypto').webcrypto,performance,Date,Math,console,structuredClone,location:{hash:''},scrollTo(){},addEventListener(){},setTimeout});
+for(const f of ['curriculum.js','beginner.js','app.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+vm.runInContext(`
+startQuiz('roles',10);
+if(quiz.questions.length!==10)throw Error('Wrong round length');
+if(new Set(quiz.questions.map(q=>q.sentenceId)).size!==10)throw Error('Repeated sentence');
+if(quiz.questions.some(q=>q.skill!=='noun'))throw Error('Premature grammar');
+renderQuestion();answer(quiz.questions[0],{dataset:{answer:quiz.questions[0].a}});
+if(state.sessions.length!==1||allAttempts().length!==1)throw Error('Answer not saved immediately');
+if(state.sessions[0].completed!==false)throw Error('Partial session not marked');
+snapshotSession(true);
+if(state.sessions.length!==1||allAttempts().length!==1)throw Error('Duplicate session');
+const before=quiz.questions.map(q=>q.sentenceId);
+state.sessions[0].answers=quiz.questions.map(q=>({questionId:q.id,sentenceId:q.sentenceId,topic:q.topic,skill:q.skill,correct:true,ms:9000,at:new Date().toISOString()}));
+startQuiz('roles',10);
+if(quiz.questions.some(q=>before.includes(q.sentenceId)))throw Error('Immediate round repetition');
+if(roleStageIndex()!==1)throw Error('Slow accurate learner blocked');
+for(const q of D.questions.filter(q=>q.tokens)){if(!q.accepted.length||!q.accepted.every(a=>q.tokens.some(t=>t.word===a)))throw Error('Invalid token answer');}
+progress();
+if(!document.querySelector('#statsDetails').innerHTML.includes('9000')&&!document.querySelector('#statsDetails').innerHTML.includes('9.0 s'))throw Error('Timings missing');
+`,ctx);
+assert.ok(memory.has('learnLatin.v1'));
+console.log('PASS: token validity, six-stage gating, no within/next-round repeats, immediate persistence, no double-counting, slow-reader progression, timing detail.');
