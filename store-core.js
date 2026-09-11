@@ -1,0 +1,3 @@
+export function mergeRecords(remote=[],local=[]){const m=new Map();for(const item of [...remote,...local]){if(!item?.id)continue;const prev=m.get(item.id),time=Date.parse(item.updatedAt||item.at||item.startedAt)||0,old=Date.parse(prev?.updatedAt||prev?.at||prev?.startedAt)||0;if(!prev||time>old||(time===old&&(item.total||0)>=(prev.total||0)))m.set(item.id,item)}return [...m.values()]}
+export function mergeSettings(remote={},local={}){return (Date.parse(local.updatedAt)||0)>=(Date.parse(remote.updatedAt)||0)?{...remote,...local}:{...local,...remote}}
+export function cleanData(value){return JSON.parse(JSON.stringify(value))}

@@ -1,6 +1,10 @@
 # Interface releases
 
-- 3.0.1: include unscored exploration in history totals and improve replay labels and wide-screen layout.
+- 4.0.0 (11 September 2026): varied short practice, extended word groups,
+  visual history, English/Latin/French comparisons, resolved-note release links,
+  editable drafts, automatic reconnection and complete item-by-item cloud records.
+- 3.0.1: unscored exploration in history totals and improved replay labels and
+  wide-screen layout; preserved as the interface reviewed in the 4.0.0 cycle.
 
 - 3.0.0 (11 September 2026): gradual whole-sentence exploration, all matching nouns,
   calm activity ending, pointer/touch event replay, reusable feedback and Latin context.
