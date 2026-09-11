@@ -1,5 +1,7 @@
 # Interface releases
 
+- 3.0.1: include unscored exploration in history totals and improve replay labels and wide-screen layout.
+
 - 3.0.0 (11 September 2026): gradual whole-sentence exploration, all matching nouns,
   calm activity ending, pointer/touch event replay, reusable feedback and Latin context.
 - 2.0.0: snapshot of ce5344bbedc4e501ea4ec23128fde9619be65c1c: first word-button
