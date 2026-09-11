@@ -1,0 +1,14 @@
+// Reusable: include this module and set data-repository and data-version on its script.
+const config=document.querySelector('script[data-repository]');
+const repo=config?.dataset.repository||'nirav2000/LearnLatin',version=config?.dataset.version||'3.0.0';
+const key='app-notes:'+repo;
+const launcher=document.createElement('button');launcher.className='notes-launcher';launcher.textContent='＋ Note';launcher.setAttribute('aria-label','Add a note about this page');document.body.append(launcher);
+launcher.onclick=()=>{
+ const dialog=document.createElement('dialog');dialog.className='notes-dialog';dialog.innerHTML=`<h2>Help improve this app</h2><p>Describe what was confusing, what went wrong, or what you want to keep.</p><label for="appNote">Your note</label><textarea id="appNote" rows="5" maxlength="4000"></textarea><p><label><input type="checkbox" id="devNote"> Developer note</label></p><p>Version ${version} · Page ${location.hash||'#home'}</p><p>Save privately on this device, or review and submit a public GitHub issue. Do not include a child's personal details.</p><div class="actions"><button id="saveNote">Save note</button><button id="submitNote">Review on GitHub</button><button id="closeNote">Close</button></div><p id="noteStatus" role="status"></p><details><summary>Saved notes</summary><div id="savedNotes"></div></details>`;document.body.append(dialog);
+ const input=dialog.querySelector('textarea');let notes;try{notes=JSON.parse(localStorage.getItem(key)||'[]')}catch{notes=[]}
+ const render=()=>{const box=dialog.querySelector('#savedNotes');box.replaceChildren();for(const n of notes){const p=document.createElement('p');p.textContent=`${n.version} · ${n.page}: ${n.text}`;box.append(p)}};render();
+ const save=()=>{if(!input.value.trim()){dialog.querySelector('#noteStatus').textContent='Write a note first.';return null}const n={id:crypto.randomUUID(),text:input.value.trim(),version,page:location.hash||'#home',developer:dialog.querySelector('#devNote').checked,at:new Date().toISOString()};notes.unshift(n);try{localStorage.setItem(key,JSON.stringify(notes.slice(0,100)))}catch{dialog.querySelector('#noteStatus').textContent='Device storage is full. Copy your note before closing.';return null}render();dialog.querySelector('#noteStatus').textContent='Saved on this device. AI has not reviewed it yet.';return n};
+ dialog.querySelector('#saveNote').onclick=save;
+ dialog.querySelector('#submitNote').onclick=()=>{const n=save();if(!n)return;const body=`App feedback\nVersion: ${n.version}\nPage: ${n.page}\nMode: ${n.developer?'developer':'learner'}\n\n${n.text}`;window.open(`https://github.com/${repo}/issues/new?title=${encodeURIComponent('[App feedback] '+n.text.slice(0,65))}&body=${encodeURIComponent(body)}`,'_blank','noopener');};
+ dialog.querySelector('#closeNote').onclick=()=>dialog.close();dialog.addEventListener('close',()=>dialog.remove());dialog.showModal();input.focus();
+};

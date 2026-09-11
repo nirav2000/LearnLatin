@@ -1,8 +1,8 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const elements=new Map();const node=()=>({innerHTML:'',textContent:'',value:'',dataset:{},classList:{toggle(){},add(){}},focus(){}});
+const elements=new Map();const node=()=>({innerHTML:'',textContent:'',value:'',dataset:{},classList:{toggle(){},add(){}},focus(){},setAttribute(){}});
 const document={querySelector:s=>{if(!elements.has(s))elements.set(s,node());return elements.get(s)},querySelectorAll:()=>[],addEventListener(){}};
-const memory=new Map();const ctx=vm.createContext({window:{},document,localStorage:{getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)},navigator:{onLine:false},crypto:require('node:crypto').webcrypto,performance,Date,Math,console,structuredClone,location:{hash:''},scrollTo(){},addEventListener(){},setTimeout});
-for(const f of ['curriculum.js','beginner.js','app.js'])vm.runInContext(fs.readFileSync(f,'utf8'),ctx);
+const memory=new Map();const ctx=vm.createContext({window:{},document,localStorage:{getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)},navigator:{onLine:false},crypto:require('node:crypto').webcrypto,performance,Date,Math,console,structuredClone,location:{hash:''},scrollTo(){},addEventListener(){},createRecorder:()=>({events:[],stop(){}}),playRecording(){},setTimeout});
+for(const f of ['curriculum.js','beginner.js','app.js'])vm.runInContext(fs.readFileSync(f,'utf8').replace(/^import .*;\n/,''),ctx);
 vm.runInContext(`
 startQuiz('roles',10);
 if(quiz.questions.length!==10)throw Error('Wrong round length');
@@ -19,6 +19,19 @@ startQuiz('roles',10);
 if(quiz.questions.some(q=>before.includes(q.sentenceId)))throw Error('Immediate round repetition');
 if(roleStageIndex()!==1)throw Error('Slow accurate learner blocked');
 for(const q of D.questions.filter(q=>q.tokens)){if(!q.accepted.length||!q.accepted.every(a=>q.tokens.some(t=>t.word===a)))throw Error('Invalid token answer');}
+startQuiz('explore',1);renderQuestion();
+for(let i=0;i<quiz.questions[0].tokens.length-1;i++)tapWord(quiz.questions[0],i);
+if(quiz.answers.length)throw Error('Exploration ended before all words');
+tapWord(quiz.questions[0],quiz.questions[0].tokens.length-1);
+if(!quiz.answers[0].exploration)throw Error('Exploration scored as assessment');
+finishQuiz();
+if(location.hash!=='finished')throw Error('Performance-first ending');
+startQuiz('roles',1);renderQuestion();
+const q=quiz.questions[0];q.accepted=q.tokens.filter(t=>t.pos==='noun').map(t=>t.word);
+tapWord(q,0);
+if(quiz.answers.length)throw Error('Only one noun accepted as complete');
+tapWord(q,4);
+if(quiz.answers.length!==1)throw Error('All nouns did not complete attempt');
 progress();
 if(!document.querySelector('#statsDetails').innerHTML.includes('9000')&&!document.querySelector('#statsDetails').innerHTML.includes('9.0 s'))throw Error('Timings missing');
 `,ctx);
