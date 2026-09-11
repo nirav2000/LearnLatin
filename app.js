@@ -1,6 +1,6 @@
 import {createRecorder,playRecording} from './explore.js?v=4.0.0';
 import {mergeRecords,mergeSettings,cleanData} from './store-core.js';
-import {historyPage,comparePage,releasePage} from './context.js';
+import {historyPage,comparePage,releasePage} from './context.js?v=4.0.0b';
 const D=window.LATIN_DATA,app=document.querySelector('#app');
 const KEY='learnLatin.v1';
 const FIREBASE_CONFIG={apiKey:'AIzaSyDrreK9rhsoOpIYNr4QeNZ7CsXgQiMPW0E',authDomain:'kk-syllabus.firebaseapp.com',projectId:'kk-syllabus',storageBucket:'kk-syllabus.firebasestorage.app',messagingSenderId:'821660665663',appId:'1:821660665663:web:c708860329bb97dc24758a'};
