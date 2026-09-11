@@ -1,5 +1,8 @@
 # Interface releases
 
+- 4.1.0 (11 September 2026): clearer numbered practice entry, answer guidance
+  moved beside the sentence, compact short-screen layout and automatic
+  visibility for new instructions.
 - 4.0.0 (11 September 2026): varied short practice, extended word groups,
   visual history, English/Latin/French comparisons, resolved-note release links,
   editable drafts, automatic reconnection and complete item-by-item cloud records.

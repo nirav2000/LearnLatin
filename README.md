@@ -2,6 +2,13 @@
 
 An iPhone/iPad-friendly Latin grammar coach for Sai and a parent to learn together.
 
+## 4.1.0
+
+- Practice opens with a numbered **start here → then try this** path.
+- Live answer guidance is placed beside the sentence and brought into view on
+  shorter iPad screens.
+- The two new 4.0.0 developer notes are linked to the 4.1.0 release notes.
+
 ## 4.0.0
 
 - Practice is capped at five questions and may finish after three fluent,

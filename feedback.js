@@ -1,8 +1,8 @@
 const config=document.querySelector('script[data-repository]');
-const repo=config?.dataset.repository||'nirav2000/LearnLatin',version=config?.dataset.version||'4.0.0',key='app-notes:'+repo;
+const repo=config?.dataset.repository||'nirav2000/LearnLatin',version=config?.dataset.version||'4.1.0',key='app-notes:'+repo;
 let releases=[];fetch('./release-notes.json').then(r=>r.json()).then(x=>{releases=x;window.dispatchEvent(new Event('latin-notes-changed'))}).catch(()=>{});
 const normal=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');
-function resolution(n){return releases.flatMap(r=>r.notes.map(note=>({...note,version:r.version}))).find(r=>n.version==='3.0.1'&&normal(n.text).includes(normal(r.match)))}
+function resolution(n){return releases.flatMap(r=>r.notes.map(note=>({...note,version:r.version,sourceVersion:note.sourceVersion||r.sourceVersion}))).find(r=>(!r.sourceVersion||n.version===r.sourceVersion)&&normal(n.text).includes(normal(r.match)))}
 function read(){if(window.LATIN_NOTES)return window.LATIN_NOTES.read();try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return []}}
 function write(n){if(window.LATIN_NOTES)return window.LATIN_NOTES.upsert(n);const notes=read(),i=notes.findIndex(x=>x.id===n.id);if(i<0)notes.push(n);else notes[i]=n;localStorage.setItem(key,JSON.stringify(notes));window.dispatchEvent(new Event('latin-notes-changed'))}
 const launcher=document.createElement('button');launcher.className='notes-launcher';launcher.textContent='＋ Note';launcher.setAttribute('aria-label','Add a note about this page');document.body.append(launcher);

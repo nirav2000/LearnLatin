@@ -1,4 +1,7 @@
-[{"version":"4.0.0","notes":[
+[{"version":"4.1.0","sourceVersion":"4.0.0","notes":[
+{"id":"ipad-feedback","match":"dynamic information is off screen","title":"Keep the next instruction in view","detail":"The live response now appears immediately below the sentence instead of after every explanation card. On shorter iPad screens the layout is more compact, and the app gently brings the new instruction into view when needed."},
+{"id":"practice-direction","match":"not really telling me what to do","title":"A clear practice path","detail":"Practice now begins with two numbered choices: first explore one English sentence without a score, then try the next small challenge. Review, speed and lesson-specific choices remain available under More practice choices."}
+]},{"version":"4.0.0","sourceVersion":"3.0.1","notes":[
 {"id":"variety","match":"10 questions is getting","title":"Shorter, varied practice","detail":"Rounds now have at most five questions, with varied verb positions. Three accurate, independent answers in under six seconds across different patterns can finish a round early. Speed alone never unlocks a new concept. Determiners, pronouns and prepositions follow the familiar word groups."},
 {"id":"labels","match":"show more detail","title":"Clearer grammar detail","detail":"Word-type detail uses >, such as determiner > article. Sentence jobs are shown separately as Job: subject or Job: object, because a subject is not a subtype of noun."},
 {"id":"medieval","match":"What are considered medieval","title":"History in plain language","detail":"The medieval period is explained as approximately 500–1500 CE in European history. The loose Japanese comparison has been removed; matching English, Latin and French examples now have their own page."},

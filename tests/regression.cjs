@@ -1,4 +1,8 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const appSource=fs.readFileSync('app.js','utf8');
+assert.ok(appSource.includes('<h1>Start here</h1>'),'Practice page lacks a clear start');
+assert.ok(appSource.indexOf('id="answerFeedback"')<appSource.indexOf('class="word-reveals"'),'Feedback appears after the explanation grid');
+assert.match(fs.readFileSync('release-notes.json','utf8'),/"version":"4\.1\.0"/);
 const elements=new Map();const node=()=>({innerHTML:'',textContent:'',value:'',dataset:{},classList:{toggle(){},add(){}},focus(){},setAttribute(){}});
 const document={querySelector:s=>{if(!elements.has(s))elements.set(s,node());return elements.get(s)},querySelectorAll:()=>[],addEventListener(){}};
 const memory=new Map();const ctx=vm.createContext({window:{dispatchEvent(){}},Event:class{},document,localStorage:{getItem:k=>memory.get(k),setItem:(k,v)=>memory.set(k,v)},navigator:{onLine:false},crypto:require('node:crypto').webcrypto,performance,Date,Math,console,structuredClone,location:{hash:''},scrollTo(){},addEventListener(){},createRecorder:()=>({events:[],stop(){}}),playRecording(){},setTimeout:()=>1,clearTimeout(){}});
