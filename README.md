@@ -16,7 +16,7 @@ Open `index.html` or visit the GitHub Pages deployment.
 
 ## Firebase sync
 
-The app works offline without configuration. Open **More > Sync & data** and paste the Firebase web configuration from the KKSyllabus Firebase project. The configuration is stored only on that device. Firestore records are written below `learnLatinLearners/{learnerCode}`.
+The app works offline without configuration. Open **More > Sync & data** and sign in with the same parent Firebase account used by KKSyllabus. The public web configuration is shared with that app; the password is never stored by Learn Latin. Firestore records are written below `families/{ownerUid}/learners/sai-latin` using the existing owner-only security rules.
 
 ## Deployment
 
