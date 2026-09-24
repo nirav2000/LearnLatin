@@ -99,6 +99,7 @@ function friendlyFirebaseError(e){const c=e?.code||'';if(c.includes('permission-
 async function connectFirebase(email,password){await firebaseReady();await firebaseApi.setPersistence(firebaseAuth,firebaseApi.browserLocalPersistence);const result=await firebaseApi.signInWithEmailAndPassword(firebaseAuth,email,password);if(result.user.uid!==OWNER_UID){await firebaseApi.signOut(firebaseAuth);throw Error('This is not the configured parent account.')}}
 let syncPromise=null,syncAgain=false,syncTimer=null,cloudMessage='Saved on this device. Sign in once to sync.';
 const uploaded=new Map();
+const usage=()=>window.FirebaseUsageMonitor;
 function cloudStatus(message){cloudMessage=message;const badge=document.querySelector('#cloudBadge');if(badge)badge.textContent=message;const status=document.querySelector('#syncStatus');if(status)status.textContent=message}
 function queueSync(){clearTimeout(syncTimer);cloudStatus(navigator.onLine?'Changes saved here · cloud pending':'Offline · changes saved here');syncTimer=setTimeout(()=>syncLatest().catch(e=>cloudStatus(friendlyFirebaseError(e))),800)}
 async function syncLatest(force=false){if(syncPromise){syncAgain=true;await syncPromise;if(syncAgain){syncAgain=false;return syncLatest(force)}return}
@@ -108,7 +109,7 @@ async function syncLatest(force=false){if(syncPromise){syncAgain=true;await sync
  if(firebaseAuth.currentUser.uid!==OWNER_UID)throw Error('This is not the configured parent account.');
  cloudStatus('Syncing…');
  const {doc,collection,getDoc,getDocs,query,where,runTransaction}=firebaseApi,base=['families',OWNER_UID,'learners','sai-latin','progress'],metaRef=doc(firebaseDb,...base,'latin');
- const [metaSnap,recordSnap]=await Promise.all([getDoc(metaRef),getDocs(query(collection(firebaseDb,...base),where('app','==','learnLatin')))]);
+ const [metaSnap,recordSnap]=await Promise.all([getDoc(metaRef).then(x=>{usage()?.read(1,'latin-meta-read','learnlatin','kk-syllabus','(default)');return x}),getDocs(query(collection(firebaseDb,...base),where('app','==','learnLatin'))).then(x=>{usage()?.read(Math.max(1,x.size||0),'latin-records-query','learnlatin','kk-syllabus','(default)');return x})]);
  const remote=metaSnap.exists()?metaSnap.data():{},records=recordSnap.docs.map(d=>d.data());
  state.sessions=mergeRecords([...(remote.sessions||[]),...records.filter(d=>d.kind==='session').map(d=>d.value)],state.sessions);
  state.notes=mergeRecords(records.filter(d=>d.kind==='note').map(d=>d.value),state.notes||[]);
@@ -121,10 +122,10 @@ async function syncLatest(force=false){if(syncPromise){syncAgain=true;await sync
  localStorage.setItem(KEY,JSON.stringify(state));window.dispatchEvent(new Event('latin-notes-changed'));
  for(const [kind,items]of [['session',state.sessions],['note',state.notes]])for(const value of items){const clean=cleanData(value),id='latin-'+kind+'-'+encodeURIComponent(value.id),fingerprint=JSON.stringify(clean);if(uploaded.get(id)===fingerprint)continue;
  const ref=doc(firebaseDb,...base,id);
- await runTransaction(firebaseDb,async tx=>{const snap=await tx.get(ref),old=snap.exists()?snap.data().value:null,winner=mergeRecords(old?[old]:[],[clean])[0];tx.set(ref,{app:'learnLatin',kind,value:winner})});uploaded.set(id,fingerprint);
+ await runTransaction(firebaseDb,async tx=>{const snap=await tx.get(ref);usage()?.read(1,'latin-record-transaction-read','learnlatin','kk-syllabus','(default)');const old=snap.exists()?snap.data().value:null,winner=mergeRecords(old?[old]:[],[clean])[0];tx.set(ref,{app:'learnLatin',kind,value:winner});usage()?.write(1,'latin-record-transaction-write','learnlatin','kk-syllabus','(default)')});uploaded.set(id,fingerprint);
  }
  // Legacy sessions are removed from the single document only after all have individual copies.
- await runTransaction(firebaseDb,async tx=>{const snap=await tx.get(metaRef),old=snap.exists()?snap.data():{};tx.set(metaRef,cleanData({version:4,settings:mergeSettings(old.settings,state.settings),noteDraft:mergeSettings(old.noteDraft,state.noteDraft),introduced:[...new Set([...(old.introduced||[]),...state.introduced])],mastery:state.mastery,due:state.due,lastDate:state.lastDate,streak:state.streak,sessions:[]}))});
+ await runTransaction(firebaseDb,async tx=>{const snap=await tx.get(metaRef);usage()?.read(1,'latin-meta-transaction-read','learnlatin','kk-syllabus','(default)');const old=snap.exists()?snap.data():{};tx.set(metaRef,cleanData({version:4,settings:mergeSettings(old.settings,state.settings),noteDraft:mergeSettings(old.noteDraft,state.noteDraft),introduced:[...new Set([...(old.introduced||[]),...state.introduced])],mastery:state.mastery,due:state.due,lastDate:state.lastDate,streak:state.streak,sessions:[]}));usage()?.write(1,'latin-meta-transaction-write','learnlatin','kk-syllabus','(default)')});
  cloudStatus('Cloud up to date');if(!quiz&&(location.hash==='#progress'||location.hash==='#home'))route();
  })();
  try{await syncPromise}catch(e){cloudStatus('Saved here · '+friendlyFirebaseError(e));throw e}finally{syncPromise=null}
